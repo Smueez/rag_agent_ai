@@ -1,28 +1,24 @@
 import os
 
+import torch
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
 from functools import lru_cache
 
 load_dotenv(override=True)
 class Settings(BaseSettings):
-    # Azure OpenAI
-    AZURE_OPENAI_ENDPOINT: str = os.getenv("AZURE_OPENAI_ENDPOINT")
-    AZURE_OPENAI_API_KEY: str = os.getenv("AZURE_OPENAI_API_KEY")
-    AZURE_OPENAI_DEPLOYMENT_NAME: str = os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME")
-    AZURE_OPENAI_API_VERSION: str = os.getenv("AZURE_OPENAI_API_VERSION")
+    OPEN_AI_API_KEY: str = os.getenv("OPEN_AI_API_KEY")
 
-    # Azure Embedding
-    AZURE_EMBEDDING_ENDPOINT: str = os.getenv("AZURE_EMBEDDING_ENDPOINT")
-    AZURE_EMBEDDING_API_KEY: str = os.getenv("AZURE_EMBEDDING_API_KEY")
-    AZURE_EMBEDDING_DEPLOYMENT_NAME: str = os.getenv("AZURE_EMBEDDING_DEPLOYMENT_NAME")
-    AZURE_EMBEDDING_API_VERSION: str = os.getenv("AZURE_EMBEDDING_API_VERSION")
+    EMBEDDING_MODEL: str = os.getenv("EMBEDDING_MODEL")
 
+    EMBEDDING_MODEL_PATH: str = f"./embedding_models/{EMBEDDING_MODEL}"
+
+    MAX_TOKEN: int = int(os.getenv("MAX_TOKEN"))
     # Qdrant
     QDRANT_HOST: str = os.getenv("QDRANT_HOST")
     QDRANT_PORT: int = int(str(os.getenv("QDRANT_PORT")))
     QDRANT_COLLECTION_NAME: str = os.getenv("QDRANT_COLLECTION_NAME")
-
+    VECTOR_SIZE: int = int(os.getenv("VECTOR_SIZE"))
     # RAG Configuration
     CHUNK_SIZE: int = int(os.getenv("CHUNK_SIZE"))
     CHUNK_OVERLAP: int = int(os.getenv("CHUNK_OVERLAP"))
@@ -36,6 +32,8 @@ class Settings(BaseSettings):
     # API Configuration
     API_HOST: str = os.getenv("API_HOST")
     API_PORT: int = os.getenv("API_PORT")
+
+    DEVICE: str = "cpu" #"cuda" if torch.cuda.is_available() else "cpu"
 
     class Config:
         env_file = ".env"

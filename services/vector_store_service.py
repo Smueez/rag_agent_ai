@@ -8,24 +8,19 @@ from qdrant_client.models import (
 from loguru import logger
 import uuid
 
+from config import app_settings
+
+
 # from config import app_settings
 
 
 class VectorStoreService:
+    def __init__(self):
+        self.client = QdrantClient(host=app_settings.QDRANT_HOST, port=app_settings.QDRANT_PORT)
+        self.collection_name = app_settings.QDRANT_COLLECTION_NAME
+        self.vector_size = app_settings.VECTOR_SIZE
 
-
-    def __init__(
-            self,
-            host: str,
-            port: int,
-            collection_name: str,
-            vector_size: int = 1536  # Default for text-embedding-ada-002
-    ):
-        self.client = QdrantClient(host=host, port=port)
-        self.collection_name = collection_name
-        self.vector_size = vector_size
-
-        logger.info(f"Connected to Qdrant at {host}:{port}")
+        logger.info(f"Connected to Qdrant at {app_settings.QDRANT_HOST}:{app_settings.QDRANT_PORT}")
 
     def create_collection(self, recreate: bool = False):
         """Create or recreate the collection"""

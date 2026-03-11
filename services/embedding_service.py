@@ -1,102 +1,56 @@
-from typing import List, Dict, Any
-from openai import AzureOpenAI
+import traceback
+from typing import List, Dict, Any, Optional
+
+import numpy as np
+from sentence_transformers import SentenceTransformer
 from tenacity import retry, stop_after_attempt, wait_exponential
 from loguru import logger
-import tiktoken
+
+from config import app_settings
+from services.embedding_model_service import ModelService
+from utils.singelton_utils import singleton
 
 
+# import tiktoken
+
+@singleton
 class EmbeddingService:
-
-
-    def __init__(
-            self,
-            endpoint: str,
-            api_key: str,
-            deployment_name: str,
-            api_version: str,
-            max_tokens: int = 8191  # Safe limit for text-embedding-ada-002
-    ):
+    def __init__(self):
         try:
-            endpoint = endpoint.rstrip('/')
-
-            self.client = AzureOpenAI(
-                azure_endpoint=endpoint,
-                api_key=api_key,
-                api_version=api_version,
-                timeout=60.0,
-                max_retries=2
-            )
-            self.deployment_name = deployment_name
-            self.max_tokens = max_tokens
-
-            # Initialize tokenizer for text-embedding-ada-002
+            self.deployment_name = app_settings.EMBEDDING_MODEL
+            self.max_tokens = app_settings.MAX_TOKEN
+            self.model_service = ModelService()
+            self.model : Optional[SentenceTransformer] = None
             try:
-                self.encoding = tiktoken.get_encoding("cl100k_base")
-            except:
-                logger.warning("Could not load tiktoken encoding, using character-based estimation")
-                self.encoding = None
+                self.model = self.model_service.get_Sentence_trancsformer_model()
+            except Exception as e:
+                traceback.print_exc()
+                logger.error("Could not load embedding model, using character-based estimation")
+                logger.error("e")
 
-            logger.info(f"Initialized EmbeddingService with deployment: {deployment_name}")
+
+            logger.info(f"Initialized EmbeddingService with deployment: {self.deployment_name}")
 
         except Exception as e:
             logger.error(f"Error initializing AzureOpenAI client: {e}")
             raise
 
-    def count_tokens(self, text: str) -> int:
-        """Count tokens in text"""
-        if self.encoding:
-            return len(self.encoding.encode(text))
-        else:
-            # Rough estimation: 1 token ≈ 4 characters
-            return len(text) // 4
-
-    def truncate_text(self, text: str, max_tokens: int = None) -> str:
-        """Truncate text to fit within token limit"""
-        if max_tokens is None:
-            max_tokens = self.max_tokens
-
-        if self.encoding:
-            tokens = self.encoding.encode(text)
-            if len(tokens) <= max_tokens:
-                return text
-
-            # Truncate tokens and decode back
-            truncated_tokens = tokens[:max_tokens]
-            truncated_text = self.encoding.decode(truncated_tokens)
-            logger.warning(f"Truncated text from {len(tokens)} to {max_tokens} tokens")
-            return truncated_text
-        else:
-            # Character-based truncation (rough estimate)
-            max_chars = max_tokens * 4
-            if len(text) <= max_chars:
-                return text
-
-            logger.warning(f"Truncated text from {len(text)} to {max_chars} characters")
-            return text[:max_chars]
-
     @retry(
         stop=stop_after_attempt(3),
         wait=wait_exponential(multiplier=1, min=2, max=10)
     )
-    def generate_embedding(self, text: str) -> List[float]:
+    def generate_embedding(self, text: str) -> np.ndarray:
         """Generate embedding for a single text with retry logic"""
         try:
-            # Truncate text if necessary
-            truncated_text = self.truncate_text(text)
 
-            # Verify token count
-            token_count = self.count_tokens(truncated_text)
-            if token_count > self.max_tokens:
-                logger.error(f"Text still too long after truncation: {token_count} tokens")
-                # Force truncate to safe limit
-                truncated_text = self.truncate_text(text, max_tokens=self.max_tokens - 100)
-
-            response = self.client.embeddings.create(
-                model=self.deployment_name,
-                input=truncated_text
+            embeddings = self.model.encode(
+                text,
+                batch_size=app_settings.BATCH_SIZE,
+                show_progress_bar=False,
+                normalize_embeddings=True,
+                convert_to_numpy=True
             )
-            embedding = response.data[0].embedding
-            return embedding
+            return embeddings
 
         except Exception as e:
             logger.error(f"Error generating embedding: {e}")
@@ -104,60 +58,34 @@ class EmbeddingService:
 
     def generate_embeddings_batch(
             self,
-            texts: List[str],
-            batch_size: int = 10
-    ) -> List[List[float]]:
+            texts: List[str]
+    ) ->np.ndarray:
         """Generate embeddings for multiple texts in batches"""
-        embeddings = []
 
-        # Truncate all texts first
-        truncated_texts = [self.truncate_text(text) for text in texts]
+        try:
+            # Verify batch doesn't exceed limits
 
-        for i in range(0, len(truncated_texts), batch_size):
-            batch = truncated_texts[i:i + batch_size]
+            embeddings = self.model.encode(
+                texts,
+                batch_size=app_settings.BATCH_SIZE,
+                show_progress_bar=False,
+                normalize_embeddings=True,
+                convert_to_numpy=True
+            )
 
-            try:
-                # Verify batch doesn't exceed limits
-                for idx, text in enumerate(batch):
-                    token_count = self.count_tokens(text)
-                    if token_count > self.max_tokens:
-                        logger.warning(f"Text {i + idx} has {token_count} tokens, re-truncating")
-                        batch[idx] = self.truncate_text(text, max_tokens=self.max_tokens - 100)
 
-                response = self.client.embeddings.create(
-                    model=self.deployment_name,
-                    input=batch
-                )
-
-                batch_embeddings = [item.embedding for item in response.data]
-                embeddings.extend(batch_embeddings)
-
-                logger.info(
-                    f"Generated embeddings for batch {i // batch_size + 1}/{(len(truncated_texts) - 1) // batch_size + 1}")
-
-            except Exception as e:
-                logger.error(f"Error in batch {i // batch_size + 1}: {e}")
-                # Fallback to individual processing
-                for text in batch:
-                    try:
-                        emb = self.generate_embedding(text)
-                        embeddings.append(emb)
-                    except Exception as e2:
-                        logger.error(f"Failed to generate embedding for text: {e2}")
-                        # Use zero vector as fallback (last resort)
-                        logger.warning("Using zero vector as fallback")
-                        embeddings.append([0.0] * 1536)
-
-        return embeddings
+            logger.info(
+                f"Generated embeddings for {len(texts)}")
+            return embeddings
+        except Exception as e:
+            traceback.print_exc()
+            logger.error(f"Error in batch {e}")
+        return np.ndarray([])
 
     def embed_chunks(self, chunks: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """Add embeddings to document chunks"""
         texts = [chunk['text'] for chunk in chunks]
 
-        # Log token statistics
-        token_counts = [self.count_tokens(text) for text in texts]
-        logger.info(
-            f"Token statistics - Min: {min(token_counts)}, Max: {max(token_counts)}, Avg: {sum(token_counts) / len(token_counts):.1f}")
 
         logger.info(f"Generating embeddings for {len(texts)} chunks...")
         embeddings = self.generate_embeddings_batch(texts)

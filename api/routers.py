@@ -44,12 +44,7 @@ def get_agent() -> ReflectiveAgent:
         logger.info("Initializing agent...")
 
         # Initialize services
-        embedding_service = EmbeddingService(
-            endpoint=settings.AZURE_EMBEDDING_ENDPOINT,
-            api_key=settings.AZURE_EMBEDDING_API_KEY,
-            deployment_name=settings.AZURE_EMBEDDING_DEPLOYMENT_NAME,
-            api_version=settings.AZURE_EMBEDDING_API_VERSION
-        )
+        embedding_service = EmbeddingService()
 
         vector_size = embedding_service.get_embedding_dimension()
 

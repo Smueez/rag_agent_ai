@@ -21,28 +21,15 @@ def process_n_store(pdf_path: str):
     # Initialize services
     logger.info("Initializing services...")
 
-    processor = DocumentProcessorService(
-        chunk_size=app_settings.CHUNK_SIZE,
-        chunk_overlap=app_settings.CHUNK_OVERLAP
-    )
+    processor = DocumentProcessorService()
 
-    embedding_service = EmbeddingService(
-        endpoint=app_settings.AZURE_EMBEDDING_ENDPOINT,
-        api_key=app_settings.AZURE_EMBEDDING_API_KEY,
-        deployment_name=app_settings.AZURE_EMBEDDING_DEPLOYMENT_NAME,
-        api_version=app_settings.AZURE_EMBEDDING_API_VERSION
-    )
+    embedding_service = EmbeddingService()
 
     # Get embedding dimension
     vector_size = embedding_service.get_embedding_dimension()
     logger.info(f"Embedding dimension: {vector_size}")
 
-    vector_store = VectorStoreService(
-        host=app_settings.QDRANT_HOST,
-        port=app_settings.QDRANT_PORT,
-        collection_name=app_settings.QDRANT_COLLECTION_NAME,
-        vector_size=vector_size
-    )
+    vector_store = VectorStoreService()
 
     # Create collection
     vector_store.create_collection(recreate=True)
@@ -68,7 +55,7 @@ def process_n_store(pdf_path: str):
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("Usage: python process_n_store.py <path_to_pdf>")
+        print("Usage: python process_n_store_service.py <path_to_pdf>")
         sys.exit(1)
 
     pdf_path = sys.argv[1]
