@@ -56,26 +56,19 @@ pip install -r requirements.txt
 
 Create a `.env` file:
 ```env
-# Azure OpenAI Configuration
-AZURE_OPENAI_ENDPOINT=https://your-resource.cognitiveservices.azure.com
-AZURE_OPENAI_API_KEY=your_api_key_here
-AZURE_OPENAI_DEPLOYMENT_NAME=gpt-4o-mini
-AZURE_OPENAI_API_VERSION=2024-02-15-preview
+HF_AUTH_KEY=your-hf-key
+OPEN_AI_API_KEY=your-api-key
+EMBEDDING_MODEL=your-sentence-transformer-model
 
-# Azure Embedding Configuration
-AZURE_EMBEDDING_ENDPOINT=https://your-resource.cognitiveservices.azure.com
-AZURE_EMBEDDING_API_KEY=your_api_key_here
-AZURE_EMBEDDING_DEPLOYMENT_NAME=text-embedding-ada-002
-AZURE_EMBEDDING_API_VERSION=2024-02-15-preview
-
+MAX_TOKEN=8191
 # Qdrant Configuration
 QDRANT_HOST=localhost
 QDRANT_PORT=6333
 QDRANT_COLLECTION_NAME=document_embeddings
-
+VECTOR_SIZE=768
 # RAG Configuration
-CHUNK_SIZE=1000
-CHUNK_OVERLAP=200
+CHUNK_SIZE=400
+CHUNK_OVERLAP=80
 TOP_K_RESULTS=5
 SIMILARITY_THRESHOLD=0.7
 
@@ -111,39 +104,68 @@ API Documentation: `http://localhost:8000/docs`
 
 ### 1. Upload a PDF Document
 
-**Using cURL:**
-```bash
-curl -X POST "http://localhost:8000/api/v1/upload" \
-  -H "Content-Type: multipart/form-data" \
-  -F "file=@/path/to/your/document.pdf"
-```
+[//]: # (**Using ~~cURL:**)
 
-**Response:**
-```json
-{
-  "message": "File uploaded successfully. Processing started in background.",
-  "filename": "document.pdf",
-  "job_id": "550e8400-e29b-41d4-a716-446655440000",
-  "status": "pending"
-}
-```
+[//]: # (```bash)
 
-### 2. Check Processing Status
-```bash
-curl http://localhost:8000/api/v1/job/550e8400-e29b-41d4-a716-446655440000
-```
+[//]: # (curl -X POST "http://localhost:8000/api/v1/upload" \)
 
-**Response:**
-```json
-{
-  "job_id": "550e8400-e29b-41d4-a716-446655440000",
-  "status": "completed",
-  "filename": "document.pdf",
-  "progress": "Processing complete!",
-  "chunks_processed": 150,
-  "total_chunks": 150
-}
-```
+[//]: # (  -H "Content-Type: multipart/form-data" \)
+
+[//]: # (  -F "file=@/path/to/your/document.pdf")
+
+[//]: # (```)
+
+[//]: # ()
+[//]: # (**Response:**)
+
+[//]: # (```json)
+
+[//]: # ({)
+
+[//]: # (  "message": "File uploaded successfully. Processing started in background.",)
+
+[//]: # (  "filename": "document.pdf",)
+
+[//]: # (  "job_id": "550e8400-e29b-41d4-a716-446655440000",)
+
+[//]: # (  "status": "pending")
+
+[//]: # (})
+
+[//]: # (```)
+
+[//]: # ()
+[//]: # (### 2. Check Processing Status)
+
+[//]: # (```bash)
+
+[//]: # (curl http://localhost:8000/api/v1/job/550e8400-e29b-41d4-a716-446655440000)
+
+[//]: # (```)
+
+[//]: # ()
+[//]: # (**Response:**)
+
+[//]: # (```json)
+
+[//]: # ({)
+
+[//]: # (  "job_id": "550e8400-e29b-41d4-a716-446655440000",)
+
+[//]: # (  "status": "completed",)
+
+[//]: # (  "filename": "document.pdf",)
+
+[//]: # (  "progress": "Processing complete!",)
+
+[//]: # (  "chunks_processed": 150,)
+
+[//]: # (  "total_chunks": 150)
+
+[//]: # (})
+
+[//]: # (```~~)
 
 ### 3. Query the Document (Non-Streaming)
 ```bash
