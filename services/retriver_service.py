@@ -25,7 +25,7 @@ class Retriever:
         self.similarity_threshold = similarity_threshold
         logger.info(f"Initialized Retriever with top_k={top_k}, threshold={similarity_threshold}")
 
-    def retrieve(
+    async def retrieve(
             self,
             query: str,
             top_k: Optional[int] = None,
@@ -44,7 +44,7 @@ class Retriever:
             query_embedding = self.embedding_service.generate_embedding(query)
 
             # Search vector store
-            results = self.vector_store.search(
+            results = await self.vector_store.search(
                 query_vector=query_embedding,
                 limit=k,
                 score_threshold=thresh
@@ -91,12 +91,12 @@ class Retriever:
             'num_results': len(results)
         }
 
-    def multi_query_retrieve(self, queries: List[str], top_k: int = 3) -> List[Dict[str, Any]]:
+    async def multi_query_retrieve(self, queries: List[str], top_k: int = 3) -> List[Dict[str, Any]]:
 
         all_results = {}
 
         for query in queries:
-            results = self.retrieve(query, top_k=top_k)
+            results = await self.retrieve(query, top_k=top_k)
 
             for result in results:
                 chunk_id = result['chunk_id']

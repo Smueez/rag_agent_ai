@@ -7,8 +7,8 @@ from functools import lru_cache
 
 load_dotenv(override=True)
 class Settings(BaseSettings):
-    OPEN_AI_API_KEY: str = os.getenv("OPEN_AI_API_KEY")
-
+    OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY")
+    HF_AUTH_KEY: str = os.getenv("HF_AUTH_KEY")
     EMBEDDING_MODEL: str = os.getenv("EMBEDDING_MODEL")
 
     EMBEDDING_MODEL_PATH: str = f"./embedding_models/{EMBEDDING_MODEL}"
@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     # Agent Configuration
     MAX_ITERATIONS: int = os.getenv("MAX_ITERATIONS")
     ENABLE_SELF_REFLECTION: bool = os.getenv("ENABLE_SELF_REFLECTION")
-
+    BATCH_SIZE: int = os.getenv("BATCH_SIZE")
     # API Configuration
     API_HOST: str = os.getenv("API_HOST")
     API_PORT: int = os.getenv("API_PORT")

@@ -102,72 +102,7 @@ API Documentation: `http://localhost:8000/docs`
 
 ## 📖 Usage
 
-### 1. Upload a PDF Document
-
-[//]: # (**Using ~~cURL:**)
-
-[//]: # (```bash)
-
-[//]: # (curl -X POST "http://localhost:8000/api/v1/upload" \)
-
-[//]: # (  -H "Content-Type: multipart/form-data" \)
-
-[//]: # (  -F "file=@/path/to/your/document.pdf")
-
-[//]: # (```)
-
-[//]: # ()
-[//]: # (**Response:**)
-
-[//]: # (```json)
-
-[//]: # ({)
-
-[//]: # (  "message": "File uploaded successfully. Processing started in background.",)
-
-[//]: # (  "filename": "document.pdf",)
-
-[//]: # (  "job_id": "550e8400-e29b-41d4-a716-446655440000",)
-
-[//]: # (  "status": "pending")
-
-[//]: # (})
-
-[//]: # (```)
-
-[//]: # ()
-[//]: # (### 2. Check Processing Status)
-
-[//]: # (```bash)
-
-[//]: # (curl http://localhost:8000/api/v1/job/550e8400-e29b-41d4-a716-446655440000)
-
-[//]: # (```)
-
-[//]: # ()
-[//]: # (**Response:**)
-
-[//]: # (```json)
-
-[//]: # ({)
-
-[//]: # (  "job_id": "550e8400-e29b-41d4-a716-446655440000",)
-
-[//]: # (  "status": "completed",)
-
-[//]: # (  "filename": "document.pdf",)
-
-[//]: # (  "progress": "Processing complete!",)
-
-[//]: # (  "chunks_processed": 150,)
-
-[//]: # (  "total_chunks": 150)
-
-[//]: # (})
-
-[//]: # (```~~)
-
-### 3. Query the Document (Non-Streaming)
+### 1. Query the Document (Non-Streaming)
 ```bash
 curl -X POST "http://localhost:8000/api/v1/query" \
   -H "Content-Type: application/json" \
@@ -188,7 +123,7 @@ curl -X POST "http://localhost:8000/api/v1/query" \
 }
 ```
 
-### 4. Query with Streaming (Real-time Response)
+### 2. Query with Streaming (Real-time Response)
 ```bash
 curl -X POST "http://localhost:8000/api/v1/query/stream" \
   -H "Content-Type: application/json" \
@@ -212,7 +147,7 @@ data: {"type": "metadata", "iterations": 2, "tool_calls": 1}
 data: {"type": "done"}
 ```
 
-### 5. Using Python
+### 3. Using Python
 ```python
 import requests
 

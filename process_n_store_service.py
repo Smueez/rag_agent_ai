@@ -1,8 +1,4 @@
-"""
-Utility script to process a PDF and store embeddings
-Usage: python scripts/process_and_store.py <path_to_pdf>
-"""
-
+import asyncio
 import sys
 import os
 
@@ -16,7 +12,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from loguru import logger
 
 # app_settings = Settings()
-def process_n_store(pdf_path: str):
+async def process_n_store(pdf_path: str):
 
     # Initialize services
     logger.info("Initializing services...")
@@ -32,7 +28,7 @@ def process_n_store(pdf_path: str):
     vector_store = VectorStoreService()
 
     # Create collection
-    vector_store.create_collection(recreate=True)
+    await vector_store.create_collection(recreate=True)
 
     # Process document
     logger.info(f"Processing PDF: {pdf_path}")
@@ -44,7 +40,7 @@ def process_n_store(pdf_path: str):
 
     # Store in vector database
     logger.info("Storing in Qdrant...")
-    vector_store.upsert_chunks(chunks_with_embeddings)
+    await vector_store.upsert_chunks(chunks_with_embeddings)
 
     # Verify storage
     info = vector_store.get_collection_info()
@@ -54,8 +50,8 @@ def process_n_store(pdf_path: str):
 
 
 if __name__ == "__main__":
+    print("Usage: python process_n_store_service.py <path_to_pdf>")
     if len(sys.argv) != 2:
-        print("Usage: python process_n_store_service.py <path_to_pdf>")
         sys.exit(1)
 
     pdf_path = sys.argv[1]
@@ -63,5 +59,5 @@ if __name__ == "__main__":
     if not os.path.exists(pdf_path):
         print(f"Error: File not found: {pdf_path}")
         sys.exit(1)
-
-    process_n_store(pdf_path)
+    asyncio.run(process_n_store(pdf_path))
+    # process_n_store(pdf_path)
