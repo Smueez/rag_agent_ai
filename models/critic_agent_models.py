@@ -24,3 +24,15 @@ class ReRankingInputModel(BaseModel):
 
     query: str = Field(..., description="The query used for re-ranking")
     chunks: List[ChunkModel] = Field(..., description="The original chunks with metadata")
+
+class ResponseGeneratorModel(BaseModel):
+    """Response Generator Agent output."""
+
+    query: str = Field(..., description="The query that was answered")
+    response: str = Field(..., description="The generated answer based strictly on context")
+
+class ReturnedGeneratorModel(BaseModel):
+
+    query: str = Field(..., description="The query that was answered")
+    response: str = Field(..., description="The generated answer based strictly on context")
+    chunks: List[RankedChunk] = Field(..., description="The original chunks with metadata")
