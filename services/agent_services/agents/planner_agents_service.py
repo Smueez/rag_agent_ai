@@ -20,16 +20,7 @@ class RetrivalAgentService:
         result = await Runner.run(planner_agent, input=f"User's query {query}")
         return result.final_output
 
-    # @staticmethod
-    # def query_classify_agent():
-    #     instructions = RetrivalAgentService.read_agent_instruction_file("classify_agent")
-    #     classify_agent = Agent(
-    #         name="Classify Agent",
-    #         instructions=instructions,
-    #         model="gpt-4o-mini",
-    #     )
-    #     # result = await Runner.run(classify_agent, input=f"User's query {query}")
-    #     return classify_agent.as_tool(tool_name="classify_agent_tool", tool_description="Classify user's query if query is normal conversation or a question.")
+
 
     @staticmethod
     @function_tool
@@ -50,15 +41,7 @@ class RetrivalAgentService:
         result = await Runner.run(classify_agent, input=f"User's query {query}")
         return result.final_output
 
-    # @staticmethod
-    # def query_rewrite_agent():
-    #     instructions = RetrivalAgentService.read_agent_instruction_file("rewrite_agent")
-    #     rewrite_agent = Agent(
-    #         name="Rewrite_agent Agent",
-    #         instructions=instructions,
-    #         model="gpt-4o-mini"
-    #     )
-    #     return rewrite_agent.as_tool(tool_name="rewrite_agent_tool", tool_description="Rewrite user's query if query with proper context.")
+
 
     @staticmethod
     @function_tool

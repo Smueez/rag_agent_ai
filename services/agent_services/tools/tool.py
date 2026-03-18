@@ -1,5 +1,6 @@
 from agents import function_tool
 
+from config import app_settings
 from services.embedding_service import EmbeddingService
 from services.vector_store_service import VectorStoreService
 
@@ -22,8 +23,8 @@ class Tool:
         query_vector = embedding_service.generate_embedding(query)
         result = await vector_service.search(
             query_vector=query_vector,
-            limit=3,
-            score_threshold=0.7
+            limit=app_settings.TOP_K_RESULTS,
+            score_threshold=app_settings.SIMILARITY_THRESHOLD
         )
 
         return result

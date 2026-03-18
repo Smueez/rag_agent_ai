@@ -22,8 +22,8 @@ class Settings(BaseSettings):
     # RAG Configuration
     CHUNK_SIZE: int = int(os.getenv("CHUNK_SIZE"))
     CHUNK_OVERLAP: int = int(os.getenv("CHUNK_OVERLAP"))
-    TOP_K_RESULTS: int = int(os.getenv("TOP_K_RESULTS"))
-    SIMILARITY_THRESHOLD: float = float(os.getenv("SIMILARITY_THRESHOLD"))
+    TOP_K_RESULTS: int = int(os.getenv("TOP_K_RESULTS", "5"))
+    SIMILARITY_THRESHOLD: float = float(os.getenv("SIMILARITY_THRESHOLD", "0.7"))
 
     # Agent Configuration
     MAX_ITERATIONS: int = os.getenv("MAX_ITERATIONS")

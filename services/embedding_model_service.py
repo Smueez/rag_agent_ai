@@ -15,6 +15,7 @@ class ModelService:
             return self.model
         if os.path.exists(self.full_model_path) and os.path.isdir(self.full_model_path):
             self.model = SentenceTransformer(self.full_model_path, device=app_settings.DEVICE)
+            self.model.save(self.full_model_path)
         else:
             self.model = SentenceTransformer(app_settings.EMBEDDING_MODEL, device=app_settings.DEVICE)
         return self.model

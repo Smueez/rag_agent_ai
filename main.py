@@ -7,6 +7,7 @@ from api.routers import router
 app = FastAPI(title="Agentic RAG System")
 
 app.include_router(router, prefix="/api")
+
 @app.get("/health")
 def health():
     return {"status": "ok"}
