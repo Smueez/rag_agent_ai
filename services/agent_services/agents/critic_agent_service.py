@@ -7,12 +7,15 @@ from models.critic_agent_models import ReRankingResponseModel, ReRankingInputMod
     ReturnedGeneratorModel, GroundingResponseModel, CriticFeedback, CriticResponseModel
 from models.planner_agent_response_model import PlannerAgentResponseModel
 from utils.file_utils import read_agent_instruction_file
+from loguru import logger
+
 
 class CriticAgentService:
     """Agent Service for critic agents."""
 
     @staticmethod
     async def re_ranking_agent(request: PlannerAgentResponseModel)->ReRankingResponseModel:
+        logger.info(f"Re-ranking agent running start")
         instructions = read_agent_instruction_file("re_ranked_agent")
         re_ranking_agent = Agent(
             name="Re-Ranked Agent",
@@ -30,6 +33,7 @@ class CriticAgentService:
 
     @staticmethod
     async def response_generation_agent(request: ReRankingResponseModel, feedback: Optional[CriticFeedback] = None)->ReturnedGeneratorModel:
+        logger.info(f"Response generation agent running start")
         instructions = read_agent_instruction_file("response_generation_agent")
         generation_agent = Agent(
             name="Response Generation Agent",
@@ -53,6 +57,7 @@ class CriticAgentService:
 
     @staticmethod
     async def grounding_agent(request: ReturnedGeneratorModel) -> GroundingResponseModel:
+        logger.info(f"Grounding agent running start")
         instructions = read_agent_instruction_file("grounding_agent")
         grounding_ai_agent = Agent(
             name="Grounding Agent",
@@ -67,7 +72,8 @@ class CriticAgentService:
 
     @staticmethod
     async def critic_agent(request: GroundingResponseModel, attempt: int, grounding_threshold: float = 0.75) -> CriticResponseModel:
-        instructions = read_agent_instruction_file("grounding_agent")
+        logger.info(f"Critic agent running start")
+        instructions = read_agent_instruction_file("critic_agent")
         critic_ai_agent = Agent(
             name="Critic Agent",
             instructions=instructions,

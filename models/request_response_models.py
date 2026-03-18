@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel, Field
 
 
@@ -7,4 +9,16 @@ class QueryRequest(BaseModel):
     grounding_threshold: float = Field(gt=0, le=1, description="Minimum value of grounding threshold", default=0.75)
     total_chunk: int = Field(gt=0, description="Total number of chunks", default=5)
 
+class QueryResponseModel(BaseModel):
+    query: str
+    response: Optional[str] = None
+    total_time_taken_in_sec: float = Field(ge=0, description= "Total time taken in seconds", default=0)
+
+    @staticmethod
+    def empty():
+        return QueryResponseModel(
+            query='',
+            response='',
+            total_time_taken_in_sec=0,
+        )
 

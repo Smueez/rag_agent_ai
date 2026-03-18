@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException
 from loguru import logger
 
 from config import Settings
-from models.request_models import QueryRequest
+from models.request_response_models import QueryRequest
 from usecase.query_usecase import QueryUseCase
 
 router = APIRouter()
@@ -18,7 +18,8 @@ async def query(request: QueryRequest):
     Query the agent without streaming (for testing)
     """
     try:
-        return await QueryUseCase.call(request.query, attempt=request.response_generation_attempt, grounding_threshold=request.grounding_threshold)
+        result = await QueryUseCase.call(request.query, attempt=request.response_generation_attempt, grounding_threshold=request.grounding_threshold)
+        return result.model_dump()
 
     except Exception as e:
         traceback.print_exc()

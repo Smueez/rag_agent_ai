@@ -2,13 +2,14 @@ from agents import Agent, Runner, function_tool
 from ..tools.tool import Tool
 from models.planner_agent_response_model import PlannerAgentResponseModel
 from utils.file_utils import read_agent_instruction_file
-
+from loguru import logger
 
 class RetrivalAgentService:
 
 
     @staticmethod
     async def query_planner_agent(query: str)->PlannerAgentResponseModel:
+        logger.info("query planner agent running")
         instructions = read_agent_instruction_file("planner_agent")
         planner_agent = Agent(
             name="Planner Agent",
@@ -35,6 +36,7 @@ class RetrivalAgentService:
         Returns:
             Either 'retrieval' or 'convo'
         """
+        logger.info("query classify agent running")
         instructions = read_agent_instruction_file("classify_agent")
 
         classify_agent = Agent(name="Classify Agent", instructions=instructions, model="gpt-4o-mini", )
@@ -46,6 +48,7 @@ class RetrivalAgentService:
     @staticmethod
     @function_tool
     async def query_rewrite_agent(query: str):
+        logger.info("query rewrite agent running")
         instructions = read_agent_instruction_file("rewrite_agent")
         rewrite_agent = Agent(
             name="Rewrite_agent Agent",
