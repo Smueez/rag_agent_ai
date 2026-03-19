@@ -12,6 +12,7 @@ class QueryRequest(BaseModel):
 class QueryResponseModel(BaseModel):
     query: str
     response: Optional[str] = None
+    model_confidence: float = Field(gt=0, description="Confidence threshold", default=0)
     total_time_taken_in_sec: float = Field(ge=0, description= "Total time taken in seconds", default=0)
 
     @staticmethod
@@ -19,6 +20,7 @@ class QueryResponseModel(BaseModel):
         return QueryResponseModel(
             query='',
             response='',
+            model_confidence=0,
             total_time_taken_in_sec=0,
         )
 

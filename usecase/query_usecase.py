@@ -20,7 +20,13 @@ class QueryUseCase:
         if final_response:
             return QueryResponseModel(
                 query=query,
+                model_confidence=final_response.grounding_score,
                 response=final_response.final_response,
                 total_time_taken_in_sec= (end - start).total_seconds()
             )
-        return QueryResponseModel.empty()
+        return QueryResponseModel(
+                query=query,
+                model_confidence=0,
+                response="Sorry, I can not answer the question.",
+                total_time_taken_in_sec= (end - start).total_seconds()
+            )
